@@ -9,7 +9,7 @@ Built for the Stellenbosch Business School MBA *Building Your Wealth* elective (
 
 1. **Investor profile**: starting capital, monthly contribution, period, goal, income, age, inflation, fees and risk appetite.
 2. **Account type**: unit trust (discretionary), retirement annuity (RA) or tax-free savings account (TFSA), with 2026/27 tax rules, TFSA limits, RA tax refunds, Regulation 28 and the two-pot system.
-3. **Funds and allocation**: real South African funds per asset class (SA equities, Nasdaq-100, gold, property, crypto, cash) with their published costs, and sliders that keep the total at 100%.
+3. **Funds and allocation**: real South African funds (Satrix, Allan Gray and others) across eight asset classes (SA equities, Nasdaq-100, global equities, gold, property, balanced funds, crypto, cash) with their published costs, and sliders that keep the total at 100%.
 4. **Wealth projection**: 1,000-path Monte Carlo simulation with optimistic, baseline and pessimistic outcomes, inflation-adjusted values and the cost of fees.
 5. **Account types**: the same plan compared across unit trust, RA and TFSA after tax.
 6. **Compare strategies**: conservative, balanced, aggressive and Nasdaq-100-only portfolios.

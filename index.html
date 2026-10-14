@@ -14,7 +14,7 @@
   --bg:#edf0eb; --surface:#ffffff; --sunk:#e3e8e1; --ink:#14201a; --muted:#56655c; --line:#d2dad1;
   --accent:#12463a; --accent-ink:#ffffff; --accent-soft:#d6e7dd;
   --good:#23794a; --warn:#a96400; --bad:#b0332c;
-  --a-sa:#2e7d4f; --a-ndx:#4f49a8; --a-gold:#c48810; --a-reit:#8a5833; --a-crypto:#c03838; --a-cash:#6a7782;
+  --a-sa:#2e7d4f; --a-ndx:#4f49a8; --a-global:#2b6f8e; --a-gold:#c48810; --a-reit:#8a5833; --a-bal:#7a7a2a; --a-crypto:#c03838; --a-cash:#6a7782;
   --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   --f-mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -24,13 +24,13 @@
   --bg:#0c110f; --surface:#141b17; --sunk:#1a231e; --ink:#e2eae4; --muted:#93a499; --line:#28342d;
   --accent:#7fd0a6; --accent-ink:#0c110f; --accent-soft:#1c3a2c;
   --good:#5cc78a; --warn:#e6a23c; --bad:#ef7268;
-  --a-sa:#5dbd84; --a-ndx:#9a94ee; --a-gold:#e3b347; --a-reit:#c28c63; --a-crypto:#ec6c63; --a-cash:#9aa8b3;
+  --a-sa:#5dbd84; --a-ndx:#9a94ee; --a-global:#5fb3d6; --a-gold:#e3b347; --a-reit:#c28c63; --a-bal:#c3c45a; --a-crypto:#ec6c63; --a-cash:#9aa8b3;
   color-scheme:dark }}
 :root[data-theme="dark"]{
   --bg:#0c110f; --surface:#141b17; --sunk:#1a231e; --ink:#e2eae4; --muted:#93a499; --line:#28342d;
   --accent:#7fd0a6; --accent-ink:#0c110f; --accent-soft:#1c3a2c;
   --good:#5cc78a; --warn:#e6a23c; --bad:#ef7268;
-  --a-sa:#5dbd84; --a-ndx:#9a94ee; --a-gold:#e3b347; --a-reit:#c28c63; --a-crypto:#ec6c63; --a-cash:#9aa8b3;
+  --a-sa:#5dbd84; --a-ndx:#9a94ee; --a-global:#5fb3d6; --a-gold:#e3b347; --a-reit:#c28c63; --a-bal:#c3c45a; --a-crypto:#ec6c63; --a-cash:#9aa8b3;
   color-scheme:dark }
 
 *{box-sizing:border-box}
@@ -366,7 +366,7 @@ footer p{margin:0;max-width:90ch}
 
 <footer>
   <p>WealthWise SA is an educational simulator. It does not provide financial advice as defined in the FAIS Act. Fund names are shown for illustration only and are not recommendations; past or assumed returns do not guarantee future results. Confirm fund eligibility and costs with your platform.</p>
-  <p>Asset colours follow the rand banknote family.</p>
+  <p>Fund costs and tax rules checked October 2026.</p>
 </footer>
 
 <script>
@@ -374,29 +374,44 @@ footer p{margin:0;max-width:90ch}
 /* ================= data ================= */
 const DEFAULT_ASSETS=[
  {k:'sa',    name:'SA equities (JSE)',  short:'SA equities', tag:'Local · shares',          mu:11.5, vol:18, off:false, dd:-40, yld:3.5},
- {k:'ndx',   name:'Nasdaq-100',         short:'Nasdaq-100',  tag:'Offshore · shares',       mu:12.5, vol:22, off:true,  dd:-45, yld:0.3},
+ {k:'ndx',   name:'Nasdaq-100',         short:'Nasdaq-100',  tag:'Offshore · US tech shares',mu:12.5, vol:22, off:true,  dd:-45, yld:0.3},
+ {k:'global',name:'Global equities',    short:'Global equities', tag:'Offshore · world shares', mu:11, vol:16, off:true, dd:-40, yld:1.5},
  {k:'gold',  name:'Gold',               short:'Gold',        tag:'Rand hedge · commodity',  mu:8.5,  vol:17, off:true,  dd:-25, yld:0},
  {k:'reit',  name:'Property (SA REITs)',short:'Property',    tag:'Local · listed property', mu:10,   vol:20, off:false, dd:-45, yld:8},
+ {k:'bal',   name:'Balanced funds',     short:'Balanced',    tag:'Multi-asset · one-fund solution', mu:10, vol:10, off:true, dd:-22, yld:2.5},
  {k:'crypto',name:'Crypto (Bitcoin)',   short:'Crypto',      tag:'Offshore · digital',      mu:16,   vol:70, off:true,  dd:-75, yld:0},
  {k:'cash',  name:'Cash / money market',short:'Cash',        tag:'Local · low risk',        mu:7.5,  vol:1,  off:false, dd:0,   yld:null}
 ];
 let ASSETS=DEFAULT_ASSETS.map(a=>({...a}));
+/* order: sa, ndx, global, gold, reit, bal, crypto, cash */
 const CORR=[
- [1,   .55, .05, .60, .30, 0],
- [.55, 1,   .20, .35, .40, 0],
- [.05, .20, 1,   .05, .15, 0],
- [.60, .35, .05, 1,   .20, 0],
- [.30, .40, .15, .20, 1,   0],
- [0,   0,   0,   0,   0,   1]];
+ [1,   .55, .55, .05, .60, .85, .30, 0],
+ [.55, 1,   .85, .20, .35, .55, .40, 0],
+ [.55, .85, 1,   .20, .40, .65, .35, 0],
+ [.05, .20, .20, 1,   .05, .15, .15, 0],
+ [.60, .35, .40, .05, 1,   .60, .20, 0],
+ [.85, .55, .65, .15, .60, 1,   .25, 0],
+ [.30, .40, .35, .15, .20, .25, 1,   0],
+ [0,   0,   0,   0,   0,   0,   0,   1]];
 /* cost = TIC (TER + transaction costs) where published; tfsa: true | 'check' | false */
 const FUNDS={
  sa:[
   {id:'stx40', name:'Satrix 40 ETF', code:'STX40', type:'Index ETF', cost:0.10, yld:4.03, tfsa:true, ra:true, src:'ETFSA factsheet, Jun 2026'},
   {id:'stxcap',name:'Satrix Capped All Share ETF', code:'STXCAP', type:'Index ETF', cost:0.20, yld:2.84, tfsa:true, ra:true, src:'ETFSA factsheet, Jun 2026'},
+  {id:'stxqua',name:'Satrix Quality SA ETF', code:'STXQUA', type:'Smart-beta ETF', cost:0.56, yld:4.44, tfsa:true, ra:true, src:'ETFSA factsheet, Jun 2026, 3-yr TIC'},
+  {id:'stxveq',name:'Satrix Value Equity ETF', code:'STXVEQ', type:'Smart-beta ETF', cost:0.95, yld:5.26, tfsa:true, ra:true, src:'ETFSA factsheet, Jun 2026, 3-yr TIC'},
   {id:'agsae', name:'Allan Gray SA Equity Fund', code:'AGDA', type:'Active unit trust', cost:0.66, yld:null, tfsa:true, ra:true, src:'Allan Gray, Jun 2026, 3-yr TIC incl. performance fee'},
+  {id:'ageq',  name:'Allan Gray Equity Fund (A)', code:'AGEF', type:'Active unit trust', cost:1.74, yld:null, tfsa:true, ra:true, src:'Allan Gray, Jan 2026, 3-yr TIC incl. performance fee; may hold up to 45% offshore'},
   {id:'cntf',  name:'Coronation Top 20 Fund (A)', code:'CNTF', type:'Active unit trust', cost:1.42, yld:null, tfsa:true, ra:true, src:'Coronation, Aug 2026, 3-yr TIC'}],
  ndx:[
   {id:'stxndq',name:'Satrix Nasdaq 100 ETF', code:'STXNDQ', type:'Index ETF', cost:0.44, yld:0.25, tfsa:true, ra:true, src:'ETFSA factsheet, Jun 2026, 3-yr TIC'}],
+ global:[
+  {id:'stxwdm',name:'Satrix MSCI World Feeder ETF', code:'STXWDM', type:'Index ETF', cost:0.32, yld:0, tfsa:true, ra:true, src:'ETFSA factsheet, Jun 2026, 3-yr TIC; does not distribute'},
+  {id:'stx500',name:'Satrix S&P 500 Feeder ETF', code:'STX500', type:'Index ETF', cost:0.25, yld:0, tfsa:true, ra:true, src:'ETFSA factsheet, Jun 2026; does not distribute'},
+  {id:'agoe',  name:'Allan Gray-Orbis Global Equity Feeder', code:'AGOE', type:'Active unit trust', cost:3.19, yld:0, tfsa:'check', ra:true, src:'Allan Gray, Jul 2026, 3-yr TIC; mostly performance fee, varies with results'}],
+ bal:[
+  {id:'agbal', name:'Allan Gray Balanced Fund (A)', code:'AGBF', type:'Active multi-asset unit trust', cost:1.70, yld:null, tfsa:true, ra:true, look:{eq:.60,off:.30,prop:.03}, src:'Allan Gray, Jan 2026, 3-yr TIC; Reg 28 compliant (look-through approximate)'},
+  {id:'stxgbl',name:'Satrix Global Balanced FoF ETF', code:'STXGBL', type:'Index multi-asset ETF', cost:0.40, yld:null, tfsa:true, ra:true, look:{eq:.65,off:1,prop:.05}, src:'ETFSA factsheet, Jun 2026, 3-yr TIC; fully offshore'}],
  gold:[
   {id:'gld',   name:'Absa NewGold ETF', code:'GLD', type:'Gold-backed ETF', cost:0.30, yld:0, tfsa:'check', ra:true, src:'NewGold factsheet, Dec 2025 (annual charge)'}],
  reit:[
@@ -405,17 +420,20 @@ const FUNDS={
   {id:'slbtc', name:'Sygnia Life Bitcoin Plus Fund', code:'SLBTC', type:'Linked life fund', cost:1.20, yld:0, tfsa:false, ra:false, src:'Sygnia, Jun 2026 (management fee); Reg 28 non-compliant'},
   {id:'direct',name:'Direct Bitcoin via a licensed exchange', code:'—', type:'Direct holding', cost:0, yld:0, tfsa:false, ra:false, src:'No annual fee; buy and sell spreads apply'}],
  cash:[
-  {id:'agmm',  name:'Allan Gray Money Market Fund', code:'AGMF', type:'Money market unit trust', cost:0.29, yld:null, tfsa:true, ra:true, src:'Allan Gray, Jun 2026, 3-yr TIC'}]
+  {id:'agmm',  name:'Allan Gray Money Market Fund', code:'AGMF', type:'Money market unit trust', cost:0.29, yld:null, tfsa:true, ra:true, src:'Allan Gray, Jun 2026, 3-yr TIC'},
+  {id:'agint', name:'Allan Gray Interest Fund (A)', code:'AGIF', type:'Income unit trust', cost:0.75, yld:null, tfsa:true, ra:true, src:'Allan Gray, Jan 2026, TIC since inception'},
+  {id:'aginc', name:'Allan Gray Income Fund', code:'AGIN', type:'Income unit trust', cost:0.87, yld:null, tfsa:true, ra:true, src:'Allan Gray, Jun 2026, TIC since inception'}]
 };
 const TAX={brackets:[[245100,.18],[383100,.26],[530200,.31],[695800,.36],[887000,.39],[1878600,.41],[Infinity,.45]],threshold:99000,
   intExempt:23800,cgtIncl:.40,cgtExcl:50000,divTax:.20,tfsaYear:46000,tfsaLife:500000,tfsaPenalty:.40,raPct:.275,raCap:430000,
   lump:[[550000,0,0],[770000,.18,0],[1155000,.27,39600],[Infinity,.36,143550]]};
 const PRESETS=[
- {id:'brief', name:'Brief example', w:{sa:25,ndx:30,gold:20,reit:15,crypto:10,cash:0}},
- {id:'cons',  name:'Conservative',  w:{sa:15,ndx:10,gold:10,reit:5,crypto:0,cash:60}},
- {id:'bal',   name:'Balanced',      w:{sa:30,ndx:25,gold:10,reit:10,crypto:0,cash:25}},
- {id:'agg',   name:'Aggressive',    w:{sa:35,ndx:40,gold:5,reit:10,crypto:5,cash:5}},
- {id:'ndx',   name:'Nasdaq-100 only',w:{sa:0,ndx:100,gold:0,reit:0,crypto:0,cash:0}}
+ {id:'brief', name:'Brief example', w:{sa:25,ndx:30,global:0,gold:20,reit:15,bal:0,crypto:10,cash:0}},
+ {id:'cons',  name:'Conservative',  w:{sa:15,ndx:0,global:10,gold:10,reit:5,bal:0,crypto:0,cash:60}},
+ {id:'bal',   name:'Balanced',      w:{sa:30,ndx:10,global:15,gold:10,reit:10,bal:0,crypto:0,cash:25}},
+ {id:'agg',   name:'Aggressive',    w:{sa:35,ndx:25,global:15,gold:5,reit:10,bal:0,crypto:5,cash:5}},
+ {id:'ndx',   name:'Nasdaq-100 only',w:{sa:0,ndx:100,global:0,gold:0,reit:0,bal:0,crypto:0,cash:0}},
+ {id:'one',   name:'One balanced fund',w:{sa:0,ndx:0,global:0,gold:0,reit:0,bal:100,crypto:0,cash:0}}
 ];
 const RISK=[{n:1,name:'Cautious',max:6},{n:2,name:'Conservative',max:10},{n:3,name:'Balanced',max:14},{n:4,name:'Growth',max:19},{n:5,name:'Adventurous',max:100}];
 const WRAPS=[
@@ -423,13 +441,13 @@ const WRAPS=[
  {id:'ra',  name:'Retirement', sub:'Annuity (RA)'},
  {id:'tfsa',name:'TFSA',       sub:'Tax-free savings'}];
 const SCEN=[
- {id:'crash', name:'Global market crash', d:'Shares fall worldwide, investors run to gold.', s:{sa:-30,ndx:-35,gold:8,reit:-25,crypto:-55,cash:0.5}},
- {id:'rand',  name:'Rand falls 25%',       d:'Offshore assets rise in rand terms; local property lags.', s:{sa:3,ndx:25,gold:25,reit:-8,crypto:20,cash:0}},
- {id:'sa',    name:'SA political shock',    d:'Sovereign downgrade or a finance-minister crisis.', s:{sa:-18,ndx:15,gold:15,reit:-22,crypto:5,cash:0.5}},
- {id:'infl',  name:'Inflation surge',       d:'CPI jumps well above the SARB target.', s:{sa:-8,ndx:-12,gold:12,reit:-10,crypto:-15,cash:1}},
- {id:'rates', name:'Rates up 3 points',     d:'Central banks hike hard to fight inflation.', s:{sa:-12,ndx:-18,gold:-5,reit:-20,crypto:-30,cash:2}},
- {id:'cryp',  name:'Crypto collapse',       d:'A major exchange fails; digital assets crash.', s:{sa:-2,ndx:-5,gold:2,reit:0,crypto:-75,cash:0}},
- {id:'boom',  name:'Strong growth',         d:'Earnings surprise upwards across markets.', s:{sa:25,ndx:22,gold:-5,reit:20,crypto:60,cash:0}}
+ {id:'crash', name:'Global market crash', d:'Shares fall worldwide, investors run to gold.', s:{sa:-30,ndx:-35,global:-30,gold:8,reit:-25,bal:-15,crypto:-55,cash:0.5}},
+ {id:'rand',  name:'Rand falls 25%',       d:'Offshore assets rise in rand terms; local property lags.', s:{sa:3,ndx:25,global:25,gold:25,reit:-8,bal:6,crypto:20,cash:0}},
+ {id:'sa',    name:'SA political shock',    d:'Sovereign downgrade or a finance-minister crisis.', s:{sa:-18,ndx:15,global:15,gold:15,reit:-22,bal:-5,crypto:5,cash:0.5}},
+ {id:'infl',  name:'Inflation surge',       d:'CPI jumps well above the SARB target.', s:{sa:-8,ndx:-12,global:-10,gold:12,reit:-10,bal:-7,crypto:-15,cash:1}},
+ {id:'rates', name:'Rates up 3 points',     d:'Central banks hike hard to fight inflation.', s:{sa:-12,ndx:-18,global:-15,gold:-5,reit:-20,bal:-9,crypto:-30,cash:2}},
+ {id:'cryp',  name:'Crypto collapse',       d:'A major exchange fails; digital assets crash.', s:{sa:-2,ndx:-5,global:-3,gold:2,reit:0,bal:-1,crypto:-75,cash:0}},
+ {id:'boom',  name:'Strong growth',         d:'Earnings surprise upwards across markets.', s:{sa:25,ndx:22,global:20,gold:-5,reit:20,bal:12,crypto:60,cash:0}}
 ];
 const GOALS=[
  {name:'First R1 million', goal:1000000, years:null},
@@ -440,7 +458,7 @@ const GOALS=[
 
 const state={initial:100000, monthly:2000, years:20, esc:5, goal:1000000, goalReal:false, inf:4.5, plat:0.25, risk:3,
   income:600000, age:35, wrap:'ut', reinvest:true,
-  w:{...PRESETS[0].w}, fund:{sa:'stx40',ndx:'stxndq',gold:'gld',reit:'stxpro',crypto:'slbtc',cash:'agmm'},
+  w:{...PRESETS[0].w}, fund:{sa:'stx40',ndx:'stxndq',global:'stxwdm',gold:'gld',reit:'stxpro',bal:'agbal',crypto:'slbtc',cash:'agmm'},
   tab:'projection', real:false, scen:new Set(['crash']), sev:100};
 
 /* ================= helpers ================= */
@@ -472,7 +490,7 @@ function stats(w){
   const hhi=x.reduce((s,xi)=>s+xi*xi,0)||1;
   const dd=x.reduce((s,xi,i)=>s+xi*ASSETS[i].dd/100,0);
   const geo=Math.exp(Math.log(1+mu)-vol*vol/2)-1;
-  const off=ASSETS.reduce((s,a,i)=>s+(a.off?x[i]:0),0);
+  const off=ASSETS.reduce((s,a,i)=>{const lk=fundOf(a.k).look;return s+x[i]*(lk?lk.off:(a.off?1:0))},0);
   const fundCost=ASSETS.reduce((s,a,i)=>s+x[i]*fundOf(a.k).cost,0);
   return {x,mu,vol,rc,div:vol>0?wvol/vol:1,eff:1/hhi,dd,geo,off,fundCost};
 }
@@ -483,7 +501,7 @@ const netGeo=(st,fee)=>(1+st.geo)/(1+fee/100)-1;
 function incomeYields(w){
   let div=0,intl=0;ASSETS.forEach(a=>{const f=fundOf(a.k),x=w[a.k]/100;
     const y=(a.k==='cash'?a.mu:(f.yld!=null?f.yld:a.yld))/100;
-    if(a.k==='reit'||a.k==='cash')intl+=x*y;else div+=x*y});
+    if(a.k==='reit'||a.k==='cash')intl+=x*y;else if(a.k==='bal'){div+=x*y/2;intl+=x*y/2}else div+=x*y});
   return {div,intl};
 }
 
@@ -544,7 +562,9 @@ function runPlan(w,wrap,monthly,feeOverride){
 /* ================= checks ================= */
 function riskBand(vol){const v=vol*100;return v<6?'Low':v<10?'Low–moderate':v<14?'Moderate':v<19?'Moderate–high':'High'}
 function profileFit(vol){const p=RISK[state.risk-1],v=vol*100;if(v<=p.max)return {cls:'ok',txt:'Fits '+p.name+' profile'};if(v<=p.max*1.25)return {cls:'warn',txt:'Slightly above '+p.name};return {cls:'bad',txt:'Above '+p.name+' profile'}}
-function reg28(w){const eq=w.sa+w.ndx, off=w.ndx+w.crypto;return [
+function reg28(w){const lk=fundOf('bal').look,b=w.bal||0,r=v=>Math.round(v);
+  const eq=r(w.sa+w.ndx+w.global+b*lk.eq), off=r(w.ndx+w.global+w.crypto+b*lk.off), prop=r(w.reit+b*lk.prop);
+  w={...w,reit:prop};return [
   {t:'Equities ≤ 75%',ok:eq<=75,v:eq},{t:'Property ≤ 25%',ok:w.reit<=25,v:w.reit},{t:'Offshore ≤ 45%',ok:off<=45,v:off},{t:'Commodities ≤ 10%',ok:w.gold<=10,v:w.gold},{t:'No crypto',ok:w.crypto===0,v:w.crypto}]}
 function wrapChecks(wrap,plan){
   const w=state.w,out=[],held=ASSETS.filter(a=>w[a.k]>0),marg=margRate(state.income);
@@ -790,7 +810,7 @@ function renderExplain(plan){
   if(w[top.k]>=50) out.push(`<p class="flag">More than half the money sits in one asset class. A single bad stretch for ${top.short} would dominate your result.</p>`);
   const r0=rcs[0];
   if(r0.rc-r0.w>0.12) out.push(`<p><b>${r0.a.short}</b> is ${pct(r0.w,0)} of your money but about <b>${pct(r0.rc,0)}</b> of your risk. Risk and money are not the same thing: a small, volatile holding can drive most of the swings.</p>`);
-  out.push(`<h3>Rand exposure</h3><p>${pct(st.off,0)} of the portfolio is offshore or a rand hedge (Nasdaq-100, gold, crypto). ${st.off<0.2?'With so little offshore, your wealth depends heavily on the South African economy and the rand.':st.off>0.6?'This protects you if the rand weakens, but a strong rand would reduce your returns measured in rand.':'That balance gives some protection against rand weakness while keeping a local base.'}</p>`);
+  out.push(`<h3>Rand exposure</h3><p>${pct(st.off,0)} of the portfolio is offshore or a rand hedge (Nasdaq-100, global equities, gold, crypto and the offshore part of any balanced fund). ${st.off<0.2?'With so little offshore, your wealth depends heavily on the South African economy and the rand.':st.off>0.6?'This protects you if the rand weakens, but a strong rand would reduce your returns measured in rand.':'That balance gives some protection against rand weakness while keeping a local base.'}</p>`);
   if(w.crypto>0) out.push(`<h3>Crypto</h3><p>Crypto’s assumed volatility is ±${assetOf('crypto').vol}% a year. Volatility drag means the median outcome grows far more slowly than the average: big losses need bigger gains to recover (a 75% fall needs a 300% rise). ${w.crypto>10?'At '+w.crypto+'% this is a large allocation for such a volatile asset.':''} It also can’t go into a TFSA or an RA.</p>`);
   if(w.cash>=30&&Y>=10) out.push(`<p class="flag">${w.cash}% in cash over ${Y} years: cash is stable, but after inflation and costs it barely grows. Over long horizons this is the main cost of a cautious mix.</p>`);
   if(Y<5&&v>12) out.push(`<p class="flag">A ${Y}-year horizon is short for a portfolio this volatile. There may not be time to recover from a market fall before you need the money.</p>`);
