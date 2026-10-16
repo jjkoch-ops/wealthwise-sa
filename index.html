@@ -310,7 +310,7 @@ footer p{margin:0;max-width:90ch}
 
       <div class="panel" data-tab="compare" role="tabpanel" hidden>
         <h2>Compare strategies</h2>
-        <p class="lede">Your portfolio against four reference strategies, using the same funds, account type, contributions and 1,000 simulated markets.</p>
+        <p class="lede">Your portfolio against five reference strategies, using the same funds, account type, contributions and 1,000 simulated markets.</p>
         <div class="chartbox"><canvas id="c-compare" aria-label="Strategy comparison chart"></canvas></div>
         <div class="tablewrap"><table id="t-compare"></table></div>
         <p class="note">Severe fall = the loss if every asset suffered its worst historical-style fall at once (see Assumptions). Effective holdings = how many equal-sized positions the portfolio behaves like. Diversification ratio above 1 means the assets offset each other.</p>
@@ -372,7 +372,7 @@ footer p{margin:0;max-width:90ch}
         <div class="tablewrap"><table id="t-tax"></table></div>
         <h3>How the assets move together (correlation)</h3>
         <div class="tablewrap"><table class="heat" id="t-corr"></table></div>
-        <p class="note">Method: monthly Monte Carlo with 1,000 lognormal paths using the portfolio's expected return and volatility (from the correlation matrix). A fixed random seed keeps results stable between clicks. Offshore assets are measured in rand, so their returns include currency moves. Index and active funds in the same asset class share the class return assumption; only their costs differ. Tax figures are held flat in future years.</p>
+        <p class="note">Method: monthly Monte Carlo with 1,000 lognormal paths using the portfolio's expected return and volatility (from the correlation matrix). A fixed random seed keeps results stable between clicks. Offshore assets are measured in rand, so their returns include currency moves. Index and active funds in the same asset class share the class return assumption; only their costs differ. Your income and the tax tables are assumed to rise with inflation, so tax is worked out in today’s rand with the 2026/27 tables.</p>
       </div>
       <footer>
         <p>WealthWise SA is an educational simulator. It does not provide financial advice as defined in the FAIS Act. Fund names are shown for illustration only and are not recommendations; past or assumed returns do not guarantee future results. Confirm fund eligibility and costs with your platform.</p>
@@ -393,7 +393,7 @@ const DEFAULT_ASSETS=[
  {k:'reit',  name:'Property (SA REITs)',short:'Property',    tag:'Local · listed property', mu:10,   vol:20, off:false, dd:-45, yld:8},
  {k:'bal',   name:'Balanced funds',     short:'Balanced',    tag:'Multi-asset · one-fund solution', mu:10, vol:10, off:true, dd:-22, yld:2.5},
  {k:'crypto',name:'Crypto (Bitcoin)',   short:'Crypto',      tag:'Offshore · digital',      mu:16,   vol:70, off:true,  dd:-75, yld:0},
- {k:'cash',  name:'Cash / money market',short:'Cash',        tag:'Local · low risk',        mu:7.5,  vol:1,  off:false, dd:0,   yld:null}
+ {k:'cash',  name:'Cash / money market',short:'Cash',        tag:'Local · low risk',        mu:7.0,  vol:1,  off:false, dd:0,   yld:null}
 ];
 let ASSETS=DEFAULT_ASSETS.map(a=>({...a}));
 /* order: sa, ndx, global, gold, reit, bal, crypto, cash */
@@ -413,31 +413,31 @@ const FUNDS={
   {id:'stxcap',name:'Satrix Capped All Share ETF', code:'STXCAP', type:'Index ETF', cost:0.20, yld:2.84, tfsa:true, ra:true, src:'ETFSA factsheet, Jun 2026'},
   {id:'stxqua',name:'Satrix Quality SA ETF', code:'STXQUA', type:'Smart-beta ETF', cost:0.56, yld:4.44, tfsa:true, ra:true, src:'ETFSA factsheet, Jun 2026, 3-yr TIC'},
   {id:'stxveq',name:'Satrix Value Equity ETF', code:'STXVEQ', type:'Smart-beta ETF', cost:0.95, yld:5.26, tfsa:true, ra:true, src:'ETFSA factsheet, Jun 2026, 3-yr TIC'},
-  {id:'agsae', name:'Allan Gray SA Equity Fund', code:'AGDA', type:'Active unit trust', cost:0.66, yld:null, tfsa:true, ra:true, src:'Allan Gray, Jun 2026, 3-yr TIC incl. performance fee'},
-  {id:'ageq',  name:'Allan Gray Equity Fund (A)', code:'AGEF', type:'Active unit trust', cost:1.74, yld:null, tfsa:true, ra:true, src:'Allan Gray, Jan 2026, 3-yr TIC incl. performance fee; may hold up to 45% offshore'},
-  {id:'cntf',  name:'Coronation Top 20 Fund (A)', code:'CNTF', type:'Active unit trust', cost:1.42, yld:null, tfsa:true, ra:true, src:'Coronation, Aug 2026, 3-yr TIC'}],
+  {id:'agsae', name:'Allan Gray SA Equity Fund', code:'—', type:'Active unit trust', cost:0.66, yld:null, tfsa:true, ra:true, src:'Allan Gray, Jun 2026, 3-yr TIC incl. performance fee'},
+  {id:'ageq',  name:'Allan Gray Equity Fund (A)', code:'—', type:'Active unit trust', cost:1.74, yld:null, tfsa:true, ra:true, src:'Allan Gray, Jan 2026, 3-yr TIC incl. performance fee; may hold up to 45% offshore'},
+  {id:'cntf',  name:'Coronation Top 20 Fund (A)', code:'—', type:'Active unit trust', cost:1.42, yld:null, tfsa:true, ra:true, src:'Coronation, Aug 2026, 3-yr TIC'}],
  ndx:[
   {id:'stxndq',name:'Satrix Nasdaq 100 ETF', code:'STXNDQ', type:'Index ETF', cost:0.44, yld:0.25, tfsa:true, ra:true, src:'ETFSA factsheet, Jun 2026, 3-yr TIC'}],
  global:[
   {id:'stxwdm',name:'Satrix MSCI World Feeder ETF', code:'STXWDM', type:'Index ETF', cost:0.32, yld:0, tfsa:true, ra:true, src:'ETFSA factsheet, Jun 2026, 3-yr TIC; does not distribute'},
   {id:'stx500',name:'Satrix S&P 500 Feeder ETF', code:'STX500', type:'Index ETF', cost:0.25, yld:0, tfsa:true, ra:true, src:'ETFSA factsheet, Jun 2026; does not distribute'},
-  {id:'agoe',  name:'Allan Gray-Orbis Global Equity Feeder', code:'AGOE', type:'Active unit trust', cost:3.19, yld:0, tfsa:'check', ra:true, src:'Allan Gray, Jul 2026, 3-yr TIC; mostly performance fee, varies with results'}],
+  {id:'agoe',  name:'Allan Gray-Orbis Global Equity Feeder', code:'—', type:'Active unit trust', cost:3.19, yld:0, tfsa:'check', ra:true, src:'Allan Gray, Jul 2026, 3-yr TIC; mostly performance fee, varies with results'}],
  bal:[
-  {id:'agbal', name:'Allan Gray Balanced Fund (A)', code:'AGBF', type:'Active multi-asset unit trust', cost:1.70, yld:null, tfsa:true, ra:true, look:{eq:.60,off:.30,prop:.03}, src:'Allan Gray, Jan 2026, 3-yr TIC; Reg 28 compliant (look-through approximate)'},
-  {id:'stxgbl',name:'Satrix Global Balanced FoF ETF', code:'STXGBL', type:'Index multi-asset ETF', cost:0.40, yld:null, tfsa:true, ra:true, look:{eq:.65,off:1,prop:.05}, src:'ETFSA factsheet, Jun 2026, 3-yr TIC; fully offshore'}],
+  {id:'agbal', name:'Allan Gray Balanced Fund (A)', code:'—', type:'Active multi-asset unit trust', cost:1.70, yld:null, tfsa:true, ra:true, look:{eq:.60,off:.30,prop:.03}, src:'Allan Gray, Jan 2026, 3-yr TIC; Reg 28 compliant (look-through approximate)'},
+  {id:'stxgbl',name:'Satrix Global Balanced FoF ETF', code:'STXGLB', type:'Index multi-asset ETF', cost:0.40, yld:null, tfsa:true, ra:true, look:{eq:.65,off:1,prop:.05}, src:'ETFSA factsheet, Jun 2026, 3-yr TIC; fully offshore'}],
  gold:[
   {id:'gld',   name:'Absa NewGold ETF', code:'GLD', type:'Gold-backed ETF', cost:0.30, yld:0, tfsa:'check', ra:true, src:'NewGold factsheet, Dec 2025 (annual charge)'}],
  reit:[
   {id:'stxpro',name:'Satrix Property ETF', code:'STXPRO', type:'Index ETF', cost:0.36, yld:8.22, tfsa:true, ra:true, src:'ETFSA factsheet, Jun 2026, 3-yr TIC'}],
  crypto:[
-  {id:'slbtc', name:'Sygnia Life Bitcoin Plus Fund', code:'SLBTC', type:'Linked life fund', cost:1.20, yld:0, tfsa:false, ra:false, src:'Sygnia, Jun 2026 (management fee); Reg 28 non-compliant'},
+  {id:'slbtc', name:'Sygnia Life Bitcoin Plus Fund', code:'—', type:'Linked life fund', cost:1.20, yld:0, tfsa:false, ra:false, src:'Sygnia, Jun 2026 (management fee); Reg 28 non-compliant'},
   {id:'direct',name:'Direct Bitcoin via a licensed exchange', code:'—', type:'Direct holding', cost:0, yld:0, tfsa:false, ra:false, src:'No annual fee; buy and sell spreads apply'}],
  cash:[
-  {id:'agmm',  name:'Allan Gray Money Market Fund', code:'AGMF', type:'Money market unit trust', cost:0.29, yld:null, tfsa:true, ra:true, src:'Allan Gray, Jun 2026, 3-yr TIC'},
-  {id:'agint', name:'Allan Gray Interest Fund (A)', code:'AGIF', type:'Income unit trust', cost:0.75, yld:null, tfsa:true, ra:true, src:'Allan Gray, Jan 2026, TIC since inception'},
-  {id:'aginc', name:'Allan Gray Income Fund', code:'AGIN', type:'Income unit trust', cost:0.87, yld:null, tfsa:true, ra:true, src:'Allan Gray, Jun 2026, TIC since inception'}]
+  {id:'agmm',  name:'Allan Gray Money Market Fund', code:'—', type:'Money market unit trust', cost:0.29, yld:null, tfsa:true, ra:true, src:'Allan Gray, Jun 2026, 3-yr TIC'},
+  {id:'agint', name:'Allan Gray Interest Fund (A)', code:'—', type:'Income unit trust', cost:0.75, yld:null, tfsa:true, ra:true, src:'Allan Gray, Jan 2026, TIC since inception'},
+  {id:'aginc', name:'Allan Gray Income Fund', code:'—', type:'Income unit trust', cost:0.87, yld:null, tfsa:true, ra:true, src:'Allan Gray, Jun 2026, TIC since inception'}]
 };
-const TAX={brackets:[[245100,.18],[383100,.26],[530200,.31],[695800,.36],[887000,.39],[1878600,.41],[Infinity,.45]],threshold:99000,
+const TAX={brackets:[[245100,.18],[383100,.26],[530200,.31],[695800,.36],[887000,.39],[1878600,.41],[Infinity,.45]],threshold:99000,rebate:17820,annuityDraw:.05,
   intExempt:23800,cgtIncl:.40,cgtExcl:50000,divTax:.20,tfsaYear:46000,tfsaLife:500000,tfsaPenalty:.40,raPct:.275,raCap:430000,
   lump:[[550000,0,0],[770000,.18,0],[1155000,.27,39600],[Infinity,.36,143550]]};
 const PRESETS=[
@@ -455,9 +455,9 @@ const WRAPS=[
  {id:'tfsa',name:'TFSA',       sub:'Tax-free savings'}];
 const SCEN=[
  {id:'crash', name:'Global market crash', d:'Shares fall worldwide, investors run to gold.', s:{sa:-30,ndx:-35,global:-30,gold:8,reit:-25,bal:-15,crypto:-55,cash:0.5}},
- {id:'rand',  name:'Rand falls 25%',       d:'Offshore assets rise in rand terms; local property lags.', s:{sa:3,ndx:25,global:25,gold:25,reit:-8,bal:6,crypto:20,cash:0}},
+ {id:'rand',  name:'Rand weakens 25%',     d:'Dollars cost 25% more in rand, so offshore assets and gold rise in rand terms; local property lags.', s:{sa:3,ndx:25,global:25,gold:25,reit:-8,bal:6,crypto:20,cash:0}},
  {id:'sa',    name:'SA political shock',    d:'Sovereign downgrade or a finance-minister crisis.', s:{sa:-18,ndx:15,global:15,gold:15,reit:-22,bal:-5,crypto:5,cash:0.5}},
- {id:'infl',  name:'Inflation surge',       d:'CPI jumps well above the SARB target.', s:{sa:-8,ndx:-12,global:-10,gold:12,reit:-10,bal:-7,crypto:-15,cash:1}},
+ {id:'infl',  name:'Inflation surge',       d:'CPI jumps well above the SARB’s 3% target.', s:{sa:-8,ndx:-12,global:-10,gold:12,reit:-10,bal:-7,crypto:-15,cash:1}},
  {id:'rates', name:'Rates up 3 points',     d:'Central banks hike hard to fight inflation.', s:{sa:-12,ndx:-18,global:-15,gold:-5,reit:-20,bal:-9,crypto:-30,cash:2}},
  {id:'cryp',  name:'Crypto collapse',       d:'A major exchange fails; digital assets crash.', s:{sa:-2,ndx:-5,global:-3,gold:2,reit:0,bal:-1,crypto:-75,cash:0}},
  {id:'boom',  name:'Strong growth',         d:'Earnings surprise upwards across markets.', s:{sa:25,ndx:22,global:20,gold:-5,reit:20,bal:12,crypto:60,cash:0}}
@@ -469,7 +469,7 @@ const GOALS=[
  {name:'Retirement capital · R5m in 25 yrs', goal:5000000, years:25}
 ];
 
-const state={initial:100000, monthly:2000, years:20, esc:5, goal:1000000, goalReal:false, inf:4.5, plat:0.25, risk:3,
+const state={initial:100000, monthly:2000, years:20, esc:5, goal:1000000, goalReal:false, inf:4.0, plat:0.25, risk:3,
   income:600000, age:35, wrap:'ut', reinvest:true,
   w:{...PRESETS[0].w}, fund:{sa:'stx40',ndx:'stxndq',global:'stxwdm',gold:'gld',reit:'stxpro',bal:'agbal',crypto:'slbtc',cash:'agmm'},
   tab:'projection', real:false, scen:new Set(['crash']), sev:100};
@@ -487,9 +487,16 @@ function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a
 const fundOf=k=>FUNDS[k].find(f=>f.id===state.fund[k])||FUNDS[k][0];
 const assetOf=k=>ASSETS.find(a=>a.k===k);
 
-/* ================= tax ================= */
+/* ================= tax =================
+   All tax is worked out in today's rand with the 2026/27 tables; your income and the tables are assumed to rise with inflation. */
 function margRate(inc){if(inc<=TAX.threshold)return 0;for(const [top,r] of TAX.brackets)if(inc<=top)return r;return .45}
+function incomeTax(x){let t=0,prev=0;for(const [top,r] of TAX.brackets){if(x>prev)t+=(Math.min(x,top)-prev)*r;prev=top}return Math.max(0,t-TAX.rebate)}
+const extraTax=(base,extra)=>incomeTax(base+Math.max(0,extra))-incomeTax(base);
 function lumpTax(x){let prev=0;for(const [top,r,base] of TAX.lump){if(x<=top)return base+(x-prev)*r;prev=top}return 0}
+const dfl=y=>Math.pow(1+state.inf/100,y);
+/* RA at retirement (two-pot): one third (savings pot) as cash under the lump-sum table; two thirds buy an annuity,
+   drawn at 5% a year and taxed as income (no other income assumed). Returns tax in rand of that year. */
+function raExitTax(v,Y){const f=dfl(Y),V=v/f,lump=lumpTax(V/3),A=V*2/3,inc=A*TAX.annuityDraw,avg=inc>0?incomeTax(inc)/inc:0;return (lump+avg*A)*f}
 
 /* ================= portfolio maths ================= */
 function stats(w){
@@ -510,18 +517,20 @@ function stats(w){
 const totalFee=st=>st.fundCost+state.plat;
 const netGeo=(st,fee)=>(1+st.geo)/(1+fee/100)-1;
 
-/* income yields by asset (as % of value): dividends vs interest-like (REIT distributions count as interest) */
+/* income yields by asset (as % of value): dividends (20% dividends tax), interest (R23,800 exemption) and REIT income (fully taxable) */
 function incomeYields(w){
-  let div=0,intl=0;ASSETS.forEach(a=>{const f=fundOf(a.k),x=w[a.k]/100;
+  let div=0,intl=0,reit=0;ASSETS.forEach(a=>{const f=fundOf(a.k),x=w[a.k]/100;
     const y=(a.k==='cash'?a.mu:(f.yld!=null?f.yld:a.yld))/100;
-    if(a.k==='reit'||a.k==='cash')intl+=x*y;else if(a.k==='bal'){div+=x*y/2;intl+=x*y/2}else div+=x*y});
-  return {div,intl};
+    if(a.k==='cash')intl+=x*y;else if(a.k==='reit')reit+=x*y;else if(a.k==='bal'){div+=x*y/2;intl+=x*y/2}else div+=x*y});
+  return {div,intl,reit};
 }
 
 const NP=1000, MAXM=480;
 let NORM=null;
-function normals(){if(NORM)return NORM;const r=mulberry32(20261014);NORM=new Float32Array(NP*MAXM);
-  for(let i=0;i<NORM.length;i+=2){const u=Math.max(r(),1e-12),v=r(),R=Math.sqrt(-2*Math.log(u));NORM[i]=R*Math.cos(2*Math.PI*v);NORM[i+1]=R*Math.sin(2*Math.PI*v)}return NORM}
+/* antithetic sampling: the second 500 paths mirror the first 500, so the sample is balanced and the median is unbiased */
+function normals(){if(NORM)return NORM;const r=mulberry32(20261014),H=NP/2*MAXM;NORM=new Float32Array(NP*MAXM);
+  for(let i=0;i<H;i+=2){const u=Math.max(r(),1e-12),v=r(),R=Math.sqrt(-2*Math.log(u));NORM[i]=R*Math.cos(2*Math.PI*v);NORM[i+1]=R*Math.sin(2*Math.PI*v)}
+  for(let i=0;i<H;i++)NORM[H+i]=-NORM[i];return NORM}
 /* growth factors per path/month, cached per render */
 let GCACHE=new Map();
 function growth(st,fee,drag){const key=[st.mu.toFixed(6),st.vol.toFixed(6),fee.toFixed(4),drag.toFixed(6),state.years].join('|');
@@ -537,10 +546,12 @@ const sum=a=>{let t=0;for(const v of a)t+=v;return t};
 function q(arr,p){const s=Float64Array.from(arr).sort();return s[Math.round(p*(s.length-1))]}
 /* deterministic median path average value (for income-tax estimates) */
 function avgValue(st,fee,init,sched){const g=Math.pow(1+netGeo(st,fee),1/12);let v=init,tot=0;for(let m=0;m<sched.length;m++){v=v*g+sched[m];tot+=v}return sched.length?tot/sched.length:init}
-function utDrag(w,st,fee,init,sched){const {div,intl}=incomeYields(w),marg=margRate(state.income),avg=avgValue(st,fee,init,sched);
-  const intRand=intl*avg,taxableFrac=intRand>0?Math.max(0,1-TAX.intExempt/intRand):0;
-  const drag=div*TAX.divTax+intl*marg*taxableFrac;return {drag,income:div+intl,avg}}
-function cgt(v,base){return Math.max(0,v-base-TAX.cgtExcl)*TAX.cgtIncl*margRate(state.income)}
+function utDrag(w,st,fee,init,sched){const {div,intl,reit}=incomeYields(w),marg=margRate(state.income),avg=avgValue(st,fee,init,sched);
+  const intReal=intl*avg/dfl(state.years/2),taxableFrac=intReal>0?Math.max(0,1-TAX.intExempt/intReal):0;
+  const drag=div*TAX.divTax+intl*marg*taxableFrac+reit*marg;return {drag,income:div+intl+reit,avg}}
+/* CGT if everything is sold in the final year, on top of your income; one R50,000 annual exclusion */
+function cgt(v,base){const f=dfl(state.years),gain=(v-base)/f;return extraTax(state.income,TAX.cgtIncl*Math.max(0,gain-TAX.cgtExcl))*f}
+function raRefund(c,y){const f=dfl(y),ded=Math.min(c/f,TAX.raPct*state.income,TAX.raCap);return (incomeTax(state.income)-incomeTax(state.income-ded))*f}
 
 /* ================= account-type engine ================= */
 function runPlan(w,wrap,monthly,feeOverride){
@@ -563,8 +574,8 @@ function runPlan(w,wrap,monthly,feeOverride){
   }else{
     const s=Float64Array.from(user);
     for(let y=0;y<Y;y++){let c=y===0?state.initial:0;for(let m=y*12;m<y*12+12;m++)c+=user[m];
-      const ded=Math.min(c,TAX.raPct*state.income,TAX.raCap),ref=ded*marg;out.refunds+=ref;if(state.reinvest&&wrap==='ra')s[y*12+11]+=ref}
-    const G0=growth(st,fee,0),yr=sim(G0,state.initial,s);total=yr;net=yr[Y].map(v=>v-lumpTax(v/3));
+      const ref=raRefund(c,y);out.refunds+=ref;if(state.reinvest&&wrap==='ra')s[y*12+11]+=ref}
+    const G0=growth(st,fee,0),yr=sim(G0,state.initial,s);total=yr;net=yr[Y].map(v=>v-raExitTax(v,Y));
   }
   out.total=total;out.net=net;
   out.P10=total.map(a=>q(a,.1));out.P50=total.map(a=>q(a,.5));out.P90=total.map(a=>q(a,.9));
@@ -593,14 +604,14 @@ function wrapChecks(wrap,plan){
     else out.push({c:'ok',t:'This mix passes the simplified Regulation 28 limits.'});
     held.forEach(a=>{const f=fundOf(a.k);if(f.ra===false&&a.k!=='crypto')out.push({c:'bad',t:`${f.name} is not available inside an RA.`})});
     const yr1=state.initial+state.monthly*12,ded=Math.min(yr1,TAX.raPct*state.income,TAX.raCap);
-    out.push({c:'ok',t:`At a ${pct(marg,0)} marginal rate, about ${fmtR(ded*marg)} comes back as a tax refund in year 1 (deduction capped at 27.5% of income and R430,000).`});
+    out.push({c:'ok',t:`On a taxable income of ${fmtR(state.income)}, about ${fmtR(raRefund(yr1,0))} comes back as a tax refund in year 1 (deduction capped at 27.5% of income and R430,000 a year).`});
     if(yr1>TAX.raPct*state.income)out.push({c:'warn',t:`Year-1 contributions exceed 27.5% of your income, so ${fmtR(yr1-ded)} is not deductible that year (it carries forward).`});
     const endAge=state.age+state.years;
-    if(endAge<55)out.push({c:'warn',t:`You would be ${endAge} at the end of the period. RA savings are locked until 55, apart from the savings pot (one third of contributions), which is taxed at your marginal rate when withdrawn.`});
-    else out.push({c:'ok',t:`At ${endAge} you can retire from the RA: up to one third as cash, the rest must buy an annuity.`});
+    if(endAge<55)out.push({c:'warn',t:`You would be ${endAge} at the end of the period. RA savings are locked until 55, apart from the savings pot (one third of contributions). One withdrawal a year is allowed from it, taxed at your marginal rate.`});
+    else out.push({c:'ok',t:`At ${endAge} you can retire from the RA: the savings pot (one third) can be taken as cash; the retirement pot (two thirds) must buy an annuity, and that income is taxed.`});
   }else{
     out.push({c:'ok',t:'Access your money any time. No contribution limits.'});
-    out.push({c:'warn',t:`Dividends are taxed at 20%, interest and REIT income at your ${pct(marg,0)} marginal rate (first R23,800 of interest exempt), and capital gains when you sell.`});
+    out.push({c:'warn',t:`Dividends are taxed at 20%. Interest is taxed at your ${pct(marg,0)} marginal rate after the first R23,800 a year; REIT (property) income is taxed in full at that rate. Capital gains are taxed when you sell.`});
     held.forEach(a=>{const f=fundOf(a.k);if(f.type==='Linked life fund')out.push({c:'warn',t:`${f.name} is a life-policy fund, taxed inside the policy rather than in your hands. The app treats it like other unit trust holdings.`})});
   }
   return out;
@@ -685,7 +696,7 @@ function render(){
   document.querySelectorAll('#wrap button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.w===state.wrap));
   $('#ra-opt').hidden=state.wrap!=='ra';
   $('#wrap-sum').textContent={ut:'A normal unit trust or ETF account. Flexible, but you pay tax on income and gains.',
-    ra:'A retirement annuity. Contributions cut your income tax now; growth is tax-free; money is locked until 55.',
+    ra:'A retirement annuity. Contributions cut your income tax now and growth is tax-free, but the money is locked until 55 and the income you draw in retirement is taxed.',
     tfsa:'A tax-free savings account. No tax on growth or withdrawals, but strict contribution limits.'}[state.wrap];
   $('#wrap-checks').innerHTML=wrapChecks(state.wrap,plan).map(c=>`<li class="${c.c}">${c.t}</li>`).join('');
   document.querySelectorAll('#presets .chip').forEach(b=>{const p=PRESETS.find(x=>x.id===b.dataset.p);b.setAttribute('aria-pressed',ASSETS.every(a=>p.w[a.k]===state.w[a.k]))});
@@ -731,10 +742,11 @@ function renderProjection(plan,T){
   const f=Math.pow(1+state.inf/100,Y),med=plan.P50[Y];
   $('#proj-caption').textContent=state.real?'Values deflated by '+state.inf+'% CPI':'Nominal rand, before tax on cashing out';
   const rows=[['Optimistic',fmtR(plan.P90[Y])],['Baseline',fmtR(med)],['Pessimistic',fmtR(plan.P10[Y])],
-    ['You contribute',fmtR(plan.contrib)],['Baseline after exit tax',fmtR(plan.netP50)],['After tax, today’s rand',fmtR(plan.netP50/f)],
+    ['You contribute',fmtR(plan.contrib)],[state.wrap==='ra'?'Baseline after lump-sum and annuity tax':'Baseline after tax on cashing out',fmtR(plan.netP50)],['After tax, today’s rand',fmtR(plan.netP50/f)],
     ['Lost to costs',fmtR(noFee.P50[Y]-med)]];
-  if(state.wrap==='ra')rows.push(['Tax refunds received',fmtR(plan.refunds)]);
-  if(state.wrap==='ut')rows.push(['Yearly tax drag',pct(plan.tax,2)]);
+  if(state.wrap==='ra'){const Vr=med/f,ann=Vr*2/3*TAX.annuityDraw;rows.push(['Tax refunds received',fmtR(plan.refunds)]);
+    rows.push(['Cash at retirement (⅓), today’s rand',fmtR(Vr/3)]);rows.push(['Annuity income, today’s rand',fmtR(ann)+' a year'+(ann<=TAX.threshold?' (below the tax threshold)':'')])}
+  if(state.wrap==='ut')rows.push(['Tax on fund income',pct(plan.tax,2)+' of value a year']);
   if(state.wrap==='tfsa')rows.push(['Excess in unit trust',fmtR(plan.overflow)]);
   $('#proj-stats').innerHTML=rows.map(([k,v])=>`<div><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
 }
@@ -746,21 +758,23 @@ function renderAccounts(){
     {label:'Before exit tax',data:res.map(r=>r.p.P50[Y]),backgroundColor:alpha(css('--accent'),.35)},
     {label:'After exit tax',data:res.map(r=>r.p.netP50),backgroundColor:css('--accent')}]},
     options:baseOpts({tooltipLabel:c=>` ${c.dataset.label}: ${fmtR(c.raw)}`})});
-  const access={ut:'Any time',tfsa:'Any time (withdrawals can’t be replaced)',ra:state.age+Y>=55?'From 55; ⅓ cash, ⅔ annuity':'Locked until 55, savings pot only'};
+  const access={ut:'Any time',tfsa:'Any time (withdrawals can’t be put back)',ra:state.age+Y>=55?'From 55: ⅓ cash, ⅔ annuity':'Locked until 55, except the savings pot'};
   $('#t-wrap').innerHTML=`<thead><tr><th>Account</th><th>You put in</th><th>Tax refunds</th><th>Baseline value</th><th>Tax on exit</th><th>After tax</th><th>Pessimistic after tax</th><th>Access</th><th></th></tr></thead><tbody>`+
     res.map(r=>`<tr class="${r.x.id===state.wrap?'you':''}"><td>${r.x.name}${r.x.id==='ra'?' (RA)':''}</td><td>${fmtR(r.p.contrib)}</td><td>${r.p.refunds?fmtR(r.p.refunds):'—'}</td><td>${fmtR(r.p.P50[Y])}</td><td>${fmtR(r.p.P50[Y]-r.p.netP50)}</td><td>${fmtR(r.p.netP50)}</td><td>${fmtR(r.p.netP10)}</td><td class="t">${access[r.x.id]}</td><td>${r.x.id===state.wrap?'':`<button class="linkbtn" data-setwrap="${r.x.id}">Use</button>`}</td></tr>`).join('')+'</tbody>';
   const tf=res.find(r=>r.x.id==='tfsa').p;
   $('#wcards').innerHTML=[
     {id:'ut',h:'Unit trust (discretionary)',li:[
       'No contribution limits; sell any time',
-      'Local dividends taxed at 20% (withheld by the fund)',
-      `Interest and REIT income taxed at your marginal rate (${pct(marg,0)}) above the R23,800 exemption`,
+      'Dividends taxed at 20% (withheld before you are paid)',
+      `Interest taxed at your marginal rate (${pct(marg,0)}) after the first R23,800 a year`,
+      `REIT (property) income taxed in full at your marginal rate; the interest exemption does not apply`,
       'Capital gains: 40% included in income, first R50,000 a year excluded (max effective 18%)']},
     {id:'ra',h:'Retirement annuity (RA)',li:[
       'Contributions deductible up to 27.5% of income, capped at R430,000 a year',
       'No tax on dividends, interest or gains inside the fund',
       'Two-pot: ⅓ savings pot (one withdrawal a year, taxed at marginal rate), ⅔ retirement pot',
-      'At retirement (55+): first R550,000 of lump sums tax-free; ⅔ must buy an annuity',
+      'At retirement (55+): savings pot as cash, first R550,000 of retirement lump sums tax-free',
+      '⅔ must buy an annuity; annuity income is taxed like a salary',
       'Must follow Regulation 28 limits']},
     {id:'tfsa',h:'Tax-free savings account (TFSA)',li:[
       'R46,000 a year (from 1 March 2026) and R500,000 lifetime',
@@ -768,7 +782,7 @@ function renderAccounts(){
       'No tax on growth or withdrawals; withdrawals don’t restore your limit',
       `This plan puts ${fmtR(tf.tfsaIn)} into the TFSA and ${fmtR(tf.overflow)} into a unit trust`]}
   ].map(c=>`<div class="wcard ${c.id===state.wrap?'on':''}"><h4>${c.h}</h4><ul>${c.li.map(l=>`<li>${l}</li>`).join('')}</ul></div>`).join('');
-  $('#wrap-note').textContent=`RA after-tax value applies the retirement lump-sum table to one third of the fund and shows the annuity two thirds before income tax, which is paid later as the annuity pays out. The RA row ${state.reinvest?'reinvests':'does not reinvest'} the yearly tax refund. Unit trust tax assumes everything is sold at the end of year ${Y}. Taxable income is held at ${fmtR(state.income)} (marginal rate ${pct(marg,0)}).`;
+  $('#wrap-note').textContent=`How “after tax” is worked out. RA: one third is taken as cash under the retirement lump-sum table; the other two thirds buy an annuity, assumed to pay 5% a year with no other income, and its estimated lifetime income tax is deducted. The RA ${state.reinvest?'reinvests':'does not reinvest'} the yearly tax refund. Unit trust: tax on dividends, interest and REIT income is paid every year, and capital gains tax is charged as if everything were sold at the end of year ${Y}, on top of your income. TFSA: no tax. Your taxable income of ${fmtR(state.income)} (marginal rate ${pct(marg,0)}) and the tax tables are assumed to rise with inflation.`;
 }
 
 function renderCompare(){
@@ -814,9 +828,9 @@ function renderExplain(plan){
   const top=[...ASSETS].sort((a,b)=>w[b.k]-w[a.k])[0];
   const rcs=ASSETS.map((a,i)=>({a,rc:st.rc[i],w:w[a.k]/100})).sort((x,y)=>y.rc-x.rc);
   const out=[];
-  out.push(`<h3>The big picture</h3><p>On these assumptions your portfolio earns about <b>${pct(st.mu)}</b> a year on average, with typical yearly swings of <b>±${pct(st.vol)}</b>. That is a <b>${riskBand(st.vol).toLowerCase()}</b> risk level. After ${plan.fee.toFixed(2)}% costs and ${state.inf}% inflation, the baseline growth in real terms is about <b>${pct(real)}</b> a year, which is the number that decides whether your buying power grows.</p>`);
+  out.push(`<h3>The big picture</h3><p>On these assumptions your portfolio earns about <b>${pct(st.mu)}</b> a year on average, with typical yearly swings of <b>±${pct(st.vol)}</b>. That is a <b>${riskBand(st.vol).toLowerCase()}</b> risk level. After ${plan.fee.toFixed(2)}% costs and ${state.inf}% inflation (before tax), the baseline growth in real terms is about <b>${pct(real)}</b> a year. That is the number that decides whether your buying power grows.</p>`);
   const v=st.vol*100;
-  if(v>P.max) out.push(`<p class="flag">This portfolio swings more than the <b>${P.name}</b> profile you chose (about ±${P.max}% a year). In a bad year it could fall around ${fmtR(state.initial*Math.min(.95,2*st.vol))} on today’s capital. Either the profile or the portfolio may need to change for the two to match.</p>`);
+  if(v>P.max) out.push(`<p class="flag">This portfolio swings more than the <b>${P.name}</b> profile you chose (about ±${P.max}% a year). In a bad year (about 1 in 40) it could lose around ${fmtR(state.initial*Math.max(0,1-Math.exp(Math.log(1+st.mu)-st.vol*st.vol/2-1.96*st.vol)))} of today’s capital. Either the profile or the portfolio may need to change for the two to match.</p>`);
   else if(state.risk>=4&&v<P.max*0.55) out.push(`<p>You described yourself as <b>${P.name}</b>, but the portfolio is much calmer than that profile allows. That is a valid choice; it usually means a lower expected outcome over ${Y} years.</p>`);
   else out.push(`<p>The risk level sits within the <b>${P.name}</b> profile you selected.</p>`);
   out.push(`<h3>Diversification</h3><p>Your largest position is <b>${top.short}</b> at ${w[top.k]}%. Across ${ASSETS.filter(a=>w[a.k]>0).length} asset classes the portfolio behaves like <b>${st.eff.toFixed(1)}</b> equally sized holdings, and its diversification ratio is <b>${st.div.toFixed(2)}</b>${st.div>1.15?', so the assets do a fair amount of offsetting each other':', so the assets offset each other only a little'}.</p>`);
@@ -829,7 +843,7 @@ function renderExplain(plan){
   if(Y<5&&v>12) out.push(`<p class="flag">A ${Y}-year horizon is short for a portfolio this volatile. There may not be time to recover from a market fall before you need the money.</p>`);
   const noFee=runPlan(state.w,state.wrap,state.monthly,0);
   const active=ASSETS.filter(a=>w[a.k]>0&&fundOf(a.k).type.startsWith('Active'));
-  out.push(`<h3>Costs</h3><p>Your funds cost a weighted <b>${st.fundCost.toFixed(2)}%</b> a year, plus ${state.plat.toFixed(2)}% platform fee. Over ${Y} years that takes about <b>${fmtR(noFee.P50[Y]-plan.P50[Y])}</b> off the baseline outcome. ${active.length?`${active.map(a=>fundOf(a.k).name).join(' and ')} ${active.length>1?'are':'is'} actively managed: you pay more in the hope that the manager beats the index. The app assumes the same return as the index, so only the higher cost shows.`:'Index funds keep costs low, which compounds in your favour.'}</p>`);
+  out.push(`<h3>Costs</h3><p>Your funds cost a weighted <b>${st.fundCost.toFixed(2)}%</b> a year, plus ${state.plat.toFixed(2)}% platform fee. Over ${Y} years that takes about <b>${fmtR(noFee.P50[Y]-plan.P50[Y])}</b> off the baseline outcome, before tax. ${active.length?`${active.map(a=>fundOf(a.k).name).join(' and ')} ${active.length>1?'are':'is'} actively managed: you pay more in the hope that the manager beats the index. The app assumes the same return as the index, so only the higher cost shows.`:'Index funds keep costs low, which compounds in your favour.'}</p>`);
   const wr=state.wrap,others=WRAPS.filter(x=>x.id!==wr).map(x=>({x,p:runPlan(state.w,x.id,state.monthly)})).sort((a,b)=>b.p.netP50-a.p.netP50),best=others[0];
   out.push(`<h3>Account type</h3><p>Inside a <b>${({ut:'unit trust account',ra:'retirement annuity',tfsa:'TFSA'})[wr]}</b> the baseline after tax on cashing out is <b>${fmtR(plan.netP50)}</b>. ${best.p.netP50>plan.netP50?`The same plan in a ${best.x.name}${best.x.id==='ra'?' (RA)':''} would end around ${fmtR(best.p.netP50)}, mainly because of how tax is handled. Compare all three in the Account types tab.`:'That is the best of the three account types for this plan.'}</p>`);
   const tries=[];const add=(nw,txt)=>{const p2=runPlan(nw,state.wrap,state.monthly);tries.push(`<div class="try"><div><p>${txt}</p><small>Volatility ${pct(st.vol)} → ${pct(p2.st.vol)} · after tax ${fmtRc(plan.netP50)} → ${fmtRc(p2.netP50)}</small></div><button class="linkbtn" data-apply='${JSON.stringify(nw)}'>Try it</button></div>`)};
@@ -876,14 +890,14 @@ function renderAssump(){
       <td><input id="as-${a.k}-mu" data-a="${a.k}" data-f="mu" type="number" step="0.5" value="${a.mu}" aria-label="${a.name} expected return"></td>
       <td><input id="as-${a.k}-vol" data-a="${a.k}" data-f="vol" type="number" step="1" min="0" value="${a.vol}" aria-label="${a.name} volatility"></td>
       <td><input id="as-${a.k}-dd" data-a="${a.k}" data-f="dd" type="number" step="5" max="0" value="${a.dd}" aria-label="${a.name} severe fall"></td>
-      <td>${a.off?'Offshore':'Rand'}</td></tr>`).join('')+'</tbody>';assumpRendered=true}
+      <td>${a.k==='bal'?'Mixed':a.off?'Offshore':'Rand'}</td></tr>`).join('')+'</tbody>';assumpRendered=true}
   const yn=v=>v===true?'<span class="yes">Yes</span>':v==='check'?'<span class="maybe">Check platform</span>':'<span class="no">No</span>';
   $('#t-funds').innerHTML='<thead><tr><th>Fund</th><th>Code</th><th>Asset class</th><th>Type</th><th>Cost p.a.</th><th>Yield</th><th>TFSA</th><th>RA</th><th>Source</th></tr></thead><tbody>'+
     ASSETS.flatMap(a=>FUNDS[a.k].map(f=>`<tr><td>${f.name}</td><td>${f.code}</td><td>${a.short}</td><td>${f.type}</td><td>${f.cost.toFixed(2)}%</td><td>${f.yld!=null?f.yld.toFixed(2)+'%':a.k==='cash'?'≈ cash rate':'≈'+a.yld+'% (est.)'}</td><td>${yn(f.tfsa)}</td><td>${yn(f.ra)}</td><td class="t">${f.src}</td></tr>`)).join('')+'</tbody>';
   $('#t-tax').innerHTML='<thead><tr><th>Rule</th><th>Value</th></tr></thead><tbody>'+[
-    ['Income tax brackets','18% to 45% (top rate above R1,878,600)'],['Tax threshold, under 65','R99,000'],['Interest exemption, under 65','R23,800 a year (includes REIT distributions)'],
+    ['Income tax brackets','18% to 45% (top rate above R1,878,600)'],['Primary rebate','R17,820 (tax threshold under 65: R99,000)'],['Interest exemption, under 65','R23,800 a year (does not cover REIT income)'],['REIT income','Taxed in full as income; no dividends tax'],
     ['Dividends tax','20%'],['Capital gains','40% inclusion, R50,000 annual exclusion'],['TFSA limits','R46,000 a year, R500,000 lifetime, 40% penalty on excess'],
-    ['RA deduction','27.5% of income, max R430,000 a year'],['Retirement lump sum','First R550,000 tax-free, then 18% / 27% / 36%'],['Two-pot system','⅓ savings pot, ⅔ retirement pot']
+    ['RA deduction','27.5% of income, max R430,000 a year'],['Retirement lump sum','First R550,000 tax-free, then 18% / 27% / 36%'],['Two-pot system','⅓ savings pot, ⅔ retirement pot (must buy an annuity)'],['Annuity income (app estimate)','5% of the annuity capital a year, taxed with the income tables, no other income'],['Future years','Your income and all tax tables rise with inflation']
   ].map(([a,b])=>`<tr><td>${a}</td><td class="t">${b}</td></tr>`).join('')+'</tbody>';
   const acc=css('--accent');
   $('#t-corr').innerHTML='<thead><tr><th></th>'+ASSETS.map(a=>`<th>${a.short}</th>`).join('')+'</tr></thead><tbody>'+
